@@ -70,8 +70,8 @@ const register = asyncHandler(async (req, res) => {
 
   const hashedPwd = await bcrypt.hash(password, 10);
 
-  const lastUser = await User.findOne().sort({ user_number: -1 }).lean().exec();
-  const id = lastUser ? lastUser.user_number + 1 : 1;
+  const lastUser = await User.findOne().sort({ id: -1 }).lean().exec();
+  const id = lastUser ? lastUser.id + 1 : 1;
 
   const user = await User.create({
     id,
