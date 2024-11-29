@@ -9,10 +9,12 @@ const userSchema = new mongoose.Schema(
     },
     name: {
       type: String,
+      default: null,
     },
     mob_no: {
       type: Number,
       max: 10,
+      default: null,
     },
     email: {
       type: String,
@@ -28,6 +30,7 @@ const userSchema = new mongoose.Schema(
     },
     profile_picture: {
       type: String,
+      default: null,
     },
     status: {
       type: Boolean,
