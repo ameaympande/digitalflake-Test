@@ -1,15 +1,21 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 
-const Layout = ({ children }) => {
+const Layout = () => {
   return (
-    <div className="flex h-screen">
-      <Sidebar />
+    <div className="flex">
+      <div className="w-64">
+        <Sidebar />
+      </div>
       <div className="flex flex-col flex-1">
-        <Header />
-        <div className="p-4">{children}</div>
+        <div className="w-screen z-10">
+          <Header />
+        </div>
+        <div className="p-4">
+          <Outlet />
+        </div>
       </div>
     </div>
   );

@@ -1,26 +1,54 @@
+import { BriefcaseBusiness, ChevronRight, House, User } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
 
 const Sidebar = () => {
   return (
-    <div className="w-[30%] text-white h-full fixed top-0 left-0">
+    <div className="w-[100%] text-white h-full fixed top-16 left-0 flex">
       <div className="flex items-center space-x-2"></div>
-      <div className="mt-24 bg-gray-300">
+      <div className="bg-[#F4F4F4] w-52 mt-0 text-black p-4">
         <ul>
           <li>
-            <Link to="/" className="block py-2 px-4 hover:bg-purple-600">
-              Home
-            </Link>
+            <div className="flex justify-between  hover:bg-purple-600 w-[100%] mt-6">
+              <div>
+                <Link to="/" className="block py-2 px-4 flex gap-6">
+                  <House />
+                  Home
+                </Link>
+              </div>
+              <div className="py-2 ">
+                <ChevronRight color="#000000" />
+              </div>
+            </div>
           </li>
           <li>
-            <Link to="/roles" className="block py-2 px-4 hover:bg-purple-600">
-              Roles
-            </Link>
+            <div className="flex justify-between  hover:bg-purple-600 w-[100%] mt-6">
+              <div>
+                <Link to="/roles" className="block py-2 px-4 flex gap-6">
+                  <BriefcaseBusiness />
+                  Roles
+                </Link>
+              </div>
+              <div className="py-2 ">
+                <ChevronRight color="#000000" />
+              </div>
+            </div>
           </li>
           <li>
-            <Link to="/users" className="block py-2 px-4 hover:bg-purple-600">
-              Users
-            </Link>
+            <div className="flex justify-between  hover:bg-purple-600 w-[100%] mt-6">
+              <div>
+                <Link
+                  to="/users"
+                  className=" py-2 px-4 hover:bg-purple-600 flex gap-6"
+                >
+                  <User />
+                  Users
+                </Link>
+              </div>
+              <div className="py-2 ">
+                <ChevronRight color="#000000" />
+              </div>
+            </div>
           </li>
         </ul>
       </div>
