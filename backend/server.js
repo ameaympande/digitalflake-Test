@@ -10,6 +10,8 @@ const ENV = process.env.ENV;
 
 connectDB();
 
+app.use(cors());
+
 app.use(logger);
 app.use(express.json());
 
