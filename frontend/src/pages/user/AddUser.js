@@ -4,7 +4,6 @@ import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
-// Validation schema
 const validationSchema = Yup.object({
   name: Yup.string()
     .required("Name is required")
@@ -29,7 +28,7 @@ const AddUser = () => {
       mobile: "",
       email: "",
       role: "",
-      profile_picture: null, // For file input
+      profile_picture: null,
       status: "Active",
     },
     validationSchema,
@@ -58,9 +57,9 @@ const AddUser = () => {
 
         <form
           onSubmit={formik.handleSubmit}
-          className="flex gap-4 p-8 space-y-4"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 p-8"
         >
-          <div className="flex flex-col w-[30%]">
+          <div className="flex flex-col">
             <label htmlFor="name" className="font-semibold mb-2">
               Name
             </label>
@@ -85,7 +84,7 @@ const AddUser = () => {
             )}
           </div>
 
-          <div className="flex flex-col w-[30%]">
+          <div className="flex flex-col">
             <label htmlFor="mobile" className="font-semibold mb-2">
               Mobile
             </label>
@@ -110,7 +109,7 @@ const AddUser = () => {
             )}
           </div>
 
-          <div className="flex flex-col w-[30%]">
+          <div className="flex flex-col">
             <label htmlFor="email" className="font-semibold mb-2">
               Email
             </label>
@@ -135,7 +134,7 @@ const AddUser = () => {
             )}
           </div>
 
-          <div className="flex flex-col w-[30%]">
+          <div className="flex flex-col">
             <label htmlFor="role" className="font-semibold mb-2">
               Role
             </label>
@@ -162,7 +161,7 @@ const AddUser = () => {
             )}
           </div>
 
-          <div className="flex flex-col w-[30%]">
+          <div className="flex flex-col">
             <label htmlFor="profile_picture" className="font-semibold mb-2">
               Profile Picture
             </label>
@@ -187,32 +186,6 @@ const AddUser = () => {
             <p className="text-xs text-gray-500 mt-1">
               Upload Maximum allowed file size is 10MB
             </p>
-          </div>
-
-          <div className="flex flex-col w-[30%]">
-            <label htmlFor="status" className="font-semibold mb-2">
-              Status
-            </label>
-            <select
-              id="status"
-              name="status"
-              value={formik.values.status}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className={`border rounded-lg px-3 py-2 bg-gray-50 border-gray-300 outline-none ${
-                formik.touched.status && formik.errors.status
-                  ? "border-red-500"
-                  : ""
-              }`}
-            >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-            {formik.touched.status && formik.errors.status && (
-              <span className="text-red-500 text-sm mt-1">
-                {formik.errors.status}
-              </span>
-            )}
           </div>
 
           <div className="flex justify-end space-x-4 p-4 absolute bottom-0 right-0">

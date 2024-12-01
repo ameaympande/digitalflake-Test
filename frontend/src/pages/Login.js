@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import axios from "axios";
 
 const Login = () => {
   const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -18,8 +20,20 @@ const Login = () => {
         .min(6, "Password must be at least 6 characters")
         .required("Password is required"),
     }),
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
+    onSubmit: async (values) => {
+      const body = {
+        email: values.email,
+        password: values.password,
+      };
+      try {
+        const response = await axios.post(
+          "https://digitalflake-test.onrender.com/api/v1/auth/login",
+          body
+        );
+        console.log("response", response);
+      } catch (error) {
+        console.error("error while login :", error);
+      }
     },
   });
 

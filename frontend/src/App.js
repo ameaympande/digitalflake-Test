@@ -11,7 +11,7 @@ import AddUser from "./pages/user/AddUser";
 import EditUser from "./pages/user/EditUser";
 
 const App = () => {
-  let isLoggedIn = true;
+  let isLoggedIn = false;
 
   useEffect(() => {
     const token = localStorage.getItem("token");
