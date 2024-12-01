@@ -5,15 +5,11 @@ import Header from "./Header";
 
 const Layout = () => {
   return (
-    <div className="flex">
-      <div className="w-64">
-        <Sidebar />
-      </div>
-      <div className="flex flex-col flex-1">
-        <div className="w-screen z-10">
-          <Header />
-        </div>
-        <div className="p-4">
+    <div className="flex h-screen">
+      <Sidebar />
+      <div className="flex flex-col flex-1 overflow-hidden">
+        <Header />
+        <div className="flex-1 overflow-auto p-4">
           <Outlet />
         </div>
       </div>

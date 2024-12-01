@@ -1,14 +1,18 @@
 import React from "react";
-import Layout from "../component/Layout";
 
 const Home = () => {
   return (
-    <>
-      <div className="flex justify-center items-center h-screen z-30">
-        <h1 className="text-3xl font-bold text-gray-800">Home</h1>
-        <p className="mt-4 text-gray-600">Welcome to your admin dashboard!</p>
+    <div className="flex justify-center items-center h-[calc(100vh-6rem)] ml-64 mt-16">
+      <div className="bg-white w-full h-full flex flex-col items-center justify-center rounded-[10px] shadow-md border border-gray-300">
+        <div
+          className="flex justify-center items-center w-[250px] h-[128px] bg-cover bg-center mx-auto mb-4"
+          style={{ backgroundImage: "url('/logo.png')" }}
+        ></div>
+        <p className="text-gray-600 text-sm mt-1 text-center">
+          Welcome to Digitalflake admin
+        </p>
       </div>
-    </>
+    </div>
   );
 };
 
