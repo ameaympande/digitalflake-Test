@@ -1,11 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
+import { TailSpin } from "react-loader-spinner";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/");
+    }
+  }, [navigate]);
 
   const formik = useFormik({
     initialValues: {
@@ -26,13 +36,21 @@ const Login = () => {
         password: values.password,
       };
       try {
+        setLoading(!loading);
         const response = await axios.post(
-          "https://digitalflake-test.onrender.com/api/v1/auth/login",
+          process.env.REACT_APP_API_URI + "/api/v1/auth/login",
           body
         );
         console.log("response", response);
+        if (response.status === 200 && response.data.token) {
+          localStorage.setItem("token", response.data.token);
+          window.location.href = "/";
+          setLoading(!loading);
+        }
       } catch (error) {
         console.error("error while login :", error);
+      } finally {
+        setLoading(!loading);
       }
     },
   });
@@ -125,7 +143,7 @@ const Login = () => {
               type="submit"
               className="w-full py-3 bg-purple-700 text-white rounded-md hover:bg-purple-800 transition"
             >
-              Log In
+              {!loading ? "Log In" : "Logging In"}
             </button>
           </form>
         </div>

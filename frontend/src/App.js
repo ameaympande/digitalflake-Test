@@ -1,44 +1,46 @@
-import { Routes, Route } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import Login from "./pages/Login";
 import Layout from "./component/Layout";
 import Home from "./pages/Home";
 import Roles from "./pages/roles/Roles";
-import Users from "./pages/user/Users";
 import AddRole from "./pages/roles/AddRole";
 import EditRole from "./pages/roles/EditRole";
-import { useEffect } from "react";
+import Users from "./pages/user/Users";
 import AddUser from "./pages/user/AddUser";
 import EditUser from "./pages/user/EditUser";
 
+const ProtectedRoutes = () => {
+  const token = localStorage.getItem("token");
+  return token ? <Outlet /> : <Navigate to="/login" />;
+};
+
 const App = () => {
-  let isLoggedIn = false;
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
-    if (token) isLoggedIn = true;
+    setIsLoggedIn(!!token);
   }, []);
 
   return (
-    <>
-      <Routes>
-        <Route path="/login" element={<Login />} />
+    <Routes>
+      <Route path="/login" element={<Login />} />
 
-        {isLoggedIn ? (
-          <Route path="/" element={<Layout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/roles" element={<Roles />} />
-            <Route path="/roles/add" element={<AddRole />} />
-            <Route path="/roles/edit/:id" element={<EditRole />} />
-            <Route path="/users" element={<Users />} />
-            <Route path="/users/add" element={<AddUser />} />
-            <Route path="/users/edit/:id" element={<EditUser />} />
-          </Route>
-        ) : (
-          <Route path="*" element={<Login />} />
-        )}
-      </Routes>
-    </>
+      <Route path="/" element={<ProtectedRoutes />}>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="roles" element={<Roles />} />
+          <Route path="roles/add" element={<AddRole />} />
+          <Route path="roles/edit/:id" element={<EditRole />} />
+          <Route path="users" element={<Users />} />
+          <Route path="users/add" element={<AddUser />} />
+          <Route path="users/edit/:id" element={<EditUser />} />
+        </Route>
+      </Route>
+
+      <Route path="*" element={<Navigate to={isLoggedIn ? "/" : "/login"} />} />
+    </Routes>
   );
 };
 

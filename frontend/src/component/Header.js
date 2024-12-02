@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { CircleUser, TriangleAlert } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [isPopupVisible, setPopupVisible] = useState(false);
   const popupRef = useRef(null);
+  const navigate = useNavigate();
 
   const togglePopup = () => {
     setPopupVisible(!isPopupVisible);
@@ -20,6 +22,13 @@ const Header = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const handleLogOut = () => {
+    const token = localStorage.removeItem("token");
+    if (!token) {
+      navigate("/login");
+    }
+  };
 
   return (
     <>
@@ -59,7 +68,10 @@ const Header = () => {
               >
                 Cancel
               </button>
-              <button className="py-2 px-6 bg-[#662671] text-white rounded-full">
+              <button
+                onClick={handleLogOut}
+                className="py-2 px-6 bg-[#662671] text-white rounded-full"
+              >
                 Confirm
               </button>
             </div>
