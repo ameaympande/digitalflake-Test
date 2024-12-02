@@ -87,8 +87,8 @@ const updateUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { name, mob_no, role, email, profile_picture } = req.body;
 
-  if (!id || (!name && !mob_no && !role && !email && !profile_picture)) {
-    return res.status(400).json({ error: "Invalid input." });
+  if (!id || !name) {
+    return res.status(400).json({ error: "Id and Name is required." });
   }
 
   const user = await User.findById(id).exec();
