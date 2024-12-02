@@ -3,11 +3,10 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import axios from "axios";
 
 const validationSchema = Yup.object({
-  roleName: Yup.string()
-    .required("Role name is required")
-    .min(3, "Role name must be at least 3 characters long"),
+  name: Yup.string().required("User name is required"),
 });
 
 const EditUser = () => {
@@ -15,31 +14,59 @@ const EditUser = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { state } = location;
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (state) {
-      console.log("Received Role Data:", state);
+      console.log("Received User Data:", state);
     } else {
-      console.error("No role data passed.");
+      console.error("No user data passed.");
     }
   }, [state]);
 
-  const role = state?.role;
-
   const formik = useFormik({
     initialValues: {
-      roleName: role?.roleName || "",
-      status: role?.status || "Active",
+      name: state?.name || "",
+      status: state?.status === true ? "Active" : "Inactive",
     },
     validationSchema,
-    onSubmit: (values) => {
-      console.log("Role Saved:", { id, ...values });
-      navigate("/roles");
+    onSubmit: async (values) => {
+      setLoading(true);
+      console.log("Form submitted with values:", values);
+      const body = {
+        name: values.name,
+        status: values.status === "Active" ? true : false,
+      };
+      console.log("Form submitted with values:", body);
+
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.patch(
+          `${process.env.REACT_APP_API_URI}/api/v1/users/${state?.id || id}`,
+          body,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          console.log("User updated successfully:", response.data);
+          navigate("/users", { state: { refresh: true } });
+        }
+      } catch (err) {
+        console.error(
+          err.message || "An error occurred while updating the user"
+        );
+      } finally {
+        setLoading(false);
+      }
     },
   });
 
   const handleCancel = () => {
-    navigate("/roles");
+    navigate("/users");
   };
 
   return (
@@ -48,10 +75,10 @@ const EditUser = () => {
         <div className="flex p-4 items-center border-b border-gray-200">
           <div className="flex gap-4 items-center text-xl font-semibold">
             <ArrowLeft
-              onClick={() => navigate("/roles")}
+              onClick={() => navigate("/users")}
               className="hover:cursor-pointer"
             />
-            <span>Edit Role</span>
+            <span>Edit User</span>
           </div>
         </div>
 
@@ -61,26 +88,26 @@ const EditUser = () => {
         >
           <div className="flex gap-16">
             <div className="flex flex-col w-[30%]">
-              <label htmlFor="roleName" className="font-semibold mb-2">
-                Role Name
+              <label htmlFor="name" className="font-semibold mb-2">
+                User Name
               </label>
               <input
-                id="roleName"
-                name="roleName"
+                id="name"
+                name="name"
                 type="text"
-                value={formik.values.roleName}
+                value={formik.values.name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 className={`border rounded-lg px-3 py-2 bg-gray-50 border-gray-300 outline-none ${
-                  formik.touched.roleName && formik.errors.roleName
+                  formik.touched.name && formik.errors.name
                     ? "border-red-500"
                     : ""
                 }`}
-                placeholder="Enter role name"
+                placeholder="Enter user name"
               />
-              {formik.touched.roleName && formik.errors.roleName && (
+              {formik.touched.name && formik.errors.name && (
                 <span className="text-red-500 text-sm mt-1">
-                  {formik.errors.roleName}
+                  {formik.errors.name}
                 </span>
               )}
             </div>
@@ -93,12 +120,14 @@ const EditUser = () => {
                 id="status"
                 name="status"
                 value={formik.values.status}
-                onChange={formik.handleChange}
+                onChange={(e) =>
+                  formik.setFieldValue("status", e.target.value === "true")
+                }
                 onBlur={formik.handleBlur}
                 className="border rounded-lg px-3 py-2 bg-gray-50 border-gray-300 outline-none"
               >
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
+                <option value={true}>Active</option>
+                <option value={false}>Inactive</option>
               </select>
             </div>
           </div>
@@ -115,7 +144,7 @@ const EditUser = () => {
               type="submit"
               className="py-2 px-6 bg-[#662671] text-white rounded-full hover:bg-[#541e5a]"
             >
-              Confirm
+              {loading ? "Updating..." : "Confirm"}
             </button>
           </div>
         </form>

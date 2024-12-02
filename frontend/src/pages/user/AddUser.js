@@ -3,6 +3,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import axios from "axios";
 
 const validationSchema = Yup.object({
   name: Yup.string()
@@ -21,6 +22,7 @@ const validationSchema = Yup.object({
 
 const AddUser = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -32,9 +34,41 @@ const AddUser = () => {
       status: "Active",
     },
     validationSchema,
-    onSubmit: (values) => {
-      console.log("Submitted Values:", values);
-      alert("User Added Successfully!");
+    onSubmit: async (values) => {
+      setLoading(true);
+      const formData = new FormData();
+
+      formData.append("name", values.name);
+      formData.append("mob_no", values.mobile);
+      formData.append("email", values.email);
+      formData.append("role", values.role);
+      formData.append("profile_picture", values.profile_picture);
+      formData.append("status", values.status);
+
+      try {
+        const token = localStorage.getItem("token");
+
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_URI}/api/v1/users`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status === 201) {
+          alert("User Added Successfully!");
+          navigate("/users");
+        }
+      } catch (error) {
+        console.error("Error adding user", error);
+        alert("Error adding user, please try again.");
+      } finally {
+        setLoading(false);
+      }
     },
   });
 
@@ -199,7 +233,7 @@ const AddUser = () => {
               type="submit"
               className="py-2 px-6 bg-[#662671] text-white rounded-full hover:bg-[#541e5a]"
             >
-              Confirm
+              {loading ? "Adding..." : "Confirm"}
             </button>
           </div>
         </form>

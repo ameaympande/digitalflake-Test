@@ -1,69 +1,57 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTable, useSortBy } from "react-table";
 import { Search, SquarePen, Trash2, TriangleAlert } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useUsers } from "../../context/userContext";
+import debounce from "lodash.debounce";
+import axios from "axios";
 
 const Users = () => {
   const navigate = useNavigate();
+  const { users, setUsers, loading } = useUsers();
   const [searchTerm, setSearchTerm] = useState("");
   const [isPopupVisible, setPopupVisible] = useState(false);
+  const [Loading, setLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const popupRef = useRef(null);
+  const location = useLocation();
 
   const togglePopup = () => {
     setPopupVisible(!isPopupVisible);
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (popupRef.current && !popupRef.current.contains(event.target)) {
-        setPopupVisible(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const data = useMemo(
-    () => [
-      { id: 123, userName: "Admin", status: "Active" },
-      { id: 124, userName: "Superadmin", status: "Inactive" },
-      { id: 125, userName: "Caller", status: "Inactive" },
-      { id: 126, userName: "Account", status: "Active" },
-    ],
-    []
-  );
+  const handleSearchChange = debounce((e) => {
+    setSearchTerm(e.target.value);
+  }, 300);
 
   const filteredData = useMemo(() => {
-    if (!searchTerm) return data;
-    return data.filter((row) =>
-      Object.values(row)
+    if (!searchTerm) return users;
+    return users.filter((user) => {
+      return Object.values(user)
         .join(" ")
         .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-    );
-  }, [data, searchTerm]);
+        .includes(searchTerm.toLowerCase());
+    });
+  }, [users, searchTerm]);
 
   const columns = useMemo(
     () => [
-      {
-        Header: "Id",
-        accessor: "id",
-      },
-      {
-        Header: "User Name",
-        accessor: "userName",
-      },
+      { Header: "Id", accessor: "id" },
+      { Header: "Name", accessor: "name" },
+      { Header: "Mobile", accessor: "mob_no" },
+      { Header: "Email-id", accessor: "email" },
       {
         Header: "Status",
         accessor: "status",
         Cell: ({ value }) => (
           <span
-            className={`${
-              value === "Active" ? "text-green-500" : "text-red-500"
-            }`}
+            className={
+              value === "Active"
+                ? "text-green-500"
+                : value === "Inactive"
+                ? "text-red-500"
+                : ""
+            }
           >
             {value}
           </span>
@@ -93,7 +81,6 @@ const Users = () => {
   );
 
   const handleEdit = (user) => {
-    console.log("Edit User: ", user);
     navigate(`/users/edit/${user.id}`, { state: user });
   };
 
@@ -102,14 +89,42 @@ const Users = () => {
     togglePopup();
   };
 
-  const handleDeleteConfirm = () => {
-    console.log("Deleting User: ", selectedUser);
-    setSelectedUser(null);
-    togglePopup();
+  const handleDeleteConfirm = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+
+      setUsers((prevUsers) =>
+        prevUsers.filter((user) => user.id !== selectedUser?.id)
+      );
+
+      const response = await axios.delete(
+        `${process.env.REACT_APP_API_URI}/api/v1/users/${selectedUser?.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        console.log("User deleted successfully:", response.data);
+      } else {
+        throw new Error("Failed to delete user");
+      }
+    } catch (err) {
+      console.error(
+        err.message || "An error occurred while deleting the user."
+      );
+
+      setUsers((prevUsers) => [...prevUsers, selectedUser]);
+    } finally {
+      setLoading(false);
+      togglePopup();
+    }
   };
 
   const tableInstance = useTable({ columns, data: filteredData }, useSortBy);
-
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance;
 
@@ -119,11 +134,6 @@ const Users = () => {
         <div className="bg-white w-full h-auto flex flex-col rounded-[10px] shadow-md border border-gray-300">
           <div className="flex p-4 items-center border-b border-gray-200">
             <div className="flex gap-4 items-center text-xl font-semibold">
-              <img
-                src="https://s3-alpha-sig.figma.com/img/2588/b462/bf3f810f9d10a4876639928b0c9f536e?Expires=1733702400&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=S8gtJ2p0uqU3IqNe7FYNYz-gxcXZTm45nXSek~5DSnsSd9TVSpZItGt9dkFwGr9g2qch4H~udWYarwcvNQ99~-9BbVBlV8Yoxiy8q7XM3VRs5ayLnrOKMPN5U8xjrcueNbCCNordPMU9HRTUMeU0QnhjEf6DC7ptmp-95En0IvRCbItxRsuKMwNr11-WJX~X1w-oXmJDYnVXC6D8Eoi-~pdyHBYAE4JlB6r8FBwVPPiv~j99EBPYii~yRCZe-izEQsvNpxtbplArhqtZArx0ovlWN37LQrIbOCZVH9q-EuRgUCn0p4EEeuPpUt7IdYL~4vGTZ-MwvbLDGMEPyBv0dg__"
-                alt="Briefcase Image"
-                className="w-8 h-8"
-              />
               <span>Users</span>
             </div>
             <div className="flex ml-8 items-center border rounded-lg px-3 bg-gray-50 border-gray-300 w-[40%]">
@@ -131,8 +141,7 @@ const Users = () => {
               <input
                 type="text"
                 placeholder="Search..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
                 className="w-full outline-none bg-transparent ml-2 p-2"
               />
             </div>
@@ -144,61 +153,65 @@ const Users = () => {
             </button>
           </div>
           <div className="p-4">
-            <table
-              {...getTableProps()}
-              className="w-full border-collapse border border-gray-200"
-            >
-              <thead className="bg-yellow-200">
-                {headerGroups.map((headerGroup) => (
-                  <tr {...headerGroup.getHeaderGroupProps()}>
-                    {headerGroup.headers.map((column) => (
-                      <th
-                        {...column.getHeaderProps(
-                          column.getSortByToggleProps()
-                        )}
-                        className="border border-gray-300 p-2 text-center"
-                      >
-                        {column.render("Header")}
-                        <span>
-                          {column.isSorted
-                            ? column.isSortedDesc
-                              ? " 🔽"
-                              : " 🔼"
-                            : ""}
-                        </span>
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody {...getTableBodyProps()}>
-                {rows.map((row) => {
-                  prepareRow(row);
-                  return (
-                    <tr {...row.getRowProps()} className="hover:bg-gray-100">
-                      {row.cells.map((cell) => (
-                        <td
-                          {...cell.getCellProps()}
-                          className="border border-gray-300 p-2 text-center"
+            {loading ? (
+              <div className="text-center text-gray-500">Loading...</div>
+            ) : (
+              <table
+                {...getTableProps()}
+                className="w-full border-collapse border border-gray-200"
+              >
+                <thead className="bg-yellow-200">
+                  {headerGroups.map((headerGroup) => (
+                    <tr {...headerGroup.getHeaderGroupProps()}>
+                      {headerGroup.headers.map((column) => (
+                        <th
+                          {...column.getHeaderProps(
+                            column.getSortByToggleProps()
+                          )}
+                          className="border p-2 text-center"
                         >
-                          {cell.render("Cell")}
-                        </td>
+                          {column.render("Header")}
+                          <span>
+                            {column.isSorted
+                              ? column.isSortedDesc
+                                ? " 🔽"
+                                : " 🔼"
+                              : ""}
+                          </span>
+                        </th>
                       ))}
                     </tr>
-                  );
-                })}
-                {rows.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={columns.length}
-                      className="text-center p-4 text-gray-500"
-                    >
-                      No results found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  ))}
+                </thead>
+                <tbody {...getTableBodyProps()}>
+                  {rows.map((row) => {
+                    prepareRow(row);
+                    return (
+                      <tr {...row.getRowProps()} className="hover:bg-gray-100">
+                        {row.cells.map((cell) => (
+                          <td
+                            {...cell.getCellProps()}
+                            className="border p-2 text-center"
+                          >
+                            {cell.render("Cell")}
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                  {rows.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={columns.length}
+                        className="text-center p-4 text-gray-500"
+                      >
+                        No results found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       </div>
@@ -214,7 +227,7 @@ const Users = () => {
             </div>
             <p className="mt-4 text-center text-gray-600">
               Are you sure you want to delete the user{" "}
-              <span className="font-semibold">{selectedUser?.userName}</span>?
+              <span className="font-semibold">{selectedUser?.name}</span>?
             </p>
             <div className="flex justify-center space-x-4 mt-4">
               <button

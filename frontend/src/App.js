@@ -9,6 +9,7 @@ import EditRole from "./pages/roles/EditRole";
 import Users from "./pages/user/Users";
 import AddUser from "./pages/user/AddUser";
 import EditUser from "./pages/user/EditUser";
+import { UserProvider } from "./context/userContext";
 
 const ProtectedRoutes = () => {
   const token = localStorage.getItem("token");
@@ -24,23 +25,28 @@ const App = () => {
   }, []);
 
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
+    <UserProvider>
+      <Routes>
+        <Route path="/login" element={<Login />} />
 
-      <Route path="/" element={<ProtectedRoutes />}>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="roles" element={<Roles />} />
-          <Route path="roles/add" element={<AddRole />} />
-          <Route path="roles/edit/:id" element={<EditRole />} />
-          <Route path="users" element={<Users />} />
-          <Route path="users/add" element={<AddUser />} />
-          <Route path="users/edit/:id" element={<EditUser />} />
+        <Route path="/" element={<ProtectedRoutes />}>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="roles" element={<Roles />} />
+            <Route path="roles/add" element={<AddRole />} />
+            <Route path="roles/edit/:id" element={<EditRole />} />
+            <Route path="users" element={<Users />} />
+            <Route path="users/add" element={<AddUser />} />
+            <Route path="users/edit/:id" element={<EditUser />} />
+          </Route>
         </Route>
-      </Route>
 
-      <Route path="*" element={<Navigate to={isLoggedIn ? "/" : "/login"} />} />
-    </Routes>
+        <Route
+          path="*"
+          element={<Navigate to={isLoggedIn ? "/" : "/login"} />}
+        />
+      </Routes>
+    </UserProvider>
   );
 };
 

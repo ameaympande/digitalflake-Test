@@ -13,7 +13,6 @@ const userSchema = new mongoose.Schema(
     },
     mob_no: {
       type: Number,
-      max: 10,
       default: null,
     },
     email: {
