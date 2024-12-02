@@ -26,7 +26,7 @@ const getAllUsers = asyncHandler(async (req, res) => {
 
   const users = await User.find(query)
     .select("-password")
-    .sort({ createdAt: -1 })
+    .sort({ id: -1 })
     .skip(skip)
     .limit(Number(limit))
     .lean()
