@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
-import { TailSpin } from "react-loader-spinner";
 import { Navigate, useNavigate } from "react-router-dom";
 
 const Login = () => {
