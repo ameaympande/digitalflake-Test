@@ -40,7 +40,6 @@ const Login = () => {
           process.env.REACT_APP_API_URI + "/api/v1/auth/login",
           body
         );
-        console.log("response", response);
         if (response.status === 200 && response.data.token) {
           localStorage.setItem("token", response.data.token);
           window.location.href = "/";

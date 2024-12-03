@@ -23,7 +23,7 @@ export const UserProvider = ({ children }) => {
             name: user.name,
             mob_no: user.mob_no,
             email: user.email,
-            status: user.status ? "Active" : "Inactive",
+            status: user.status,
             profile_picture: user.profile_picture,
           }));
           setUsers(fetchedUsers);

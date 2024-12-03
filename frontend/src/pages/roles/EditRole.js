@@ -3,9 +3,10 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import axios from "axios";
 
 const validationSchema = Yup.object({
-  roleName: Yup.string()
+  name: Yup.string()
     .required("Role name is required")
     .min(3, "Role name must be at least 3 characters long"),
 });
@@ -15,26 +16,43 @@ const EditRole = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { state } = location;
-
-  useEffect(() => {
-    if (state) {
-      console.log("Received Role Data:", state);
-    } else {
-      console.error("No role data passed.");
-    }
-  }, [state]);
-
-  const role = state?.role;
+  const [loading, setLoading] = useState(false);
 
   const formik = useFormik({
     initialValues: {
-      roleName: role?.roleName || "",
-      status: role?.status || "Active",
+      name: state?.name || "",
+      status: state?.status,
     },
     validationSchema,
-    onSubmit: (values) => {
-      console.log("Role Saved:", { id, ...values });
-      navigate("/roles");
+    onSubmit: async (values) => {
+      setLoading(true);
+      const body = {
+        name: values.name,
+        status: values.status,
+      };
+
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.patch(
+          `${process.env.REACT_APP_API_URI}/api/v1/roles/${state?.id || id}`,
+          body,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          navigate("/roles", { state: { refresh: true } });
+        }
+      } catch (err) {
+        console.error(
+          err.message || "An error occurred while updating the user"
+        );
+      } finally {
+        setLoading(false);
+      }
     },
   });
 
@@ -61,26 +79,26 @@ const EditRole = () => {
         >
           <div className="flex gap-16">
             <div className="flex flex-col w-[30%]">
-              <label htmlFor="roleName" className="font-semibold mb-2">
+              <label htmlFor="name" className="font-semibold mb-2">
                 Role Name
               </label>
               <input
-                id="roleName"
-                name="roleName"
+                id="name"
+                name="name"
                 type="text"
-                value={formik.values.roleName}
+                value={formik.values.name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 className={`border rounded-lg px-3 py-2 bg-gray-50 border-gray-300 outline-none ${
-                  formik.touched.roleName && formik.errors.roleName
+                  formik.touched.name && formik.errors.name
                     ? "border-red-500"
                     : ""
                 }`}
                 placeholder="Enter role name"
               />
-              {formik.touched.roleName && formik.errors.roleName && (
+              {formik.touched.name && formik.errors.name && (
                 <span className="text-red-500 text-sm mt-1">
-                  {formik.errors.roleName}
+                  {formik.errors.name}
                 </span>
               )}
             </div>
@@ -97,8 +115,8 @@ const EditRole = () => {
                 onBlur={formik.handleBlur}
                 className="border rounded-lg px-3 py-2 bg-gray-50 border-gray-300 outline-none"
               >
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
+                <option value={true}>Active</option>
+                <option value={false}>Inactive</option>
               </select>
             </div>
           </div>
@@ -115,7 +133,7 @@ const EditRole = () => {
               type="submit"
               className="py-2 px-6 bg-[#662671] text-white rounded-full hover:bg-[#541e5a]"
             >
-              Confirm
+              {loading ? "Updaing" : "Confirm"}
             </button>
           </div>
         </form>

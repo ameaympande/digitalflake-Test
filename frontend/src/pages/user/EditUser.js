@@ -16,28 +16,26 @@ const EditUser = () => {
   const { state } = location;
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (state) {
-      console.log("Received User Data:", state);
-    } else {
-      console.error("No user data passed.");
-    }
-  }, [state]);
+  // useEffect(() => {
+  //   if (state) {
+  //     console.log("Received User Data:", state);
+  //   } else {
+  //     console.error("No user data passed.");
+  //   }
+  // }, [state]);
 
   const formik = useFormik({
     initialValues: {
       name: state?.name || "",
-      status: state?.status === true ? "Active" : "Inactive",
+      status: state?.status,
     },
     validationSchema,
     onSubmit: async (values) => {
       setLoading(true);
-      console.log("Form submitted with values:", values);
       const body = {
         name: values.name,
-        status: values.status === "Active" ? true : false,
+        status: values.status,
       };
-      console.log("Form submitted with values:", body);
 
       try {
         const token = localStorage.getItem("token");
@@ -52,7 +50,6 @@ const EditUser = () => {
         );
 
         if (response.status === 200) {
-          console.log("User updated successfully:", response.data);
           navigate("/users", { state: { refresh: true } });
         }
       } catch (err) {

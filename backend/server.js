@@ -22,6 +22,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1/auth", require("./routes/authRoutes"));
 app.use("/api/v1/users", require("./routes/userRoutes"));
+app.use("/api/v1/roles", require("./routes/roleRoutes"));
 
 mongoose.connection.once("open", () => {
   app.listen(PORT, () => {

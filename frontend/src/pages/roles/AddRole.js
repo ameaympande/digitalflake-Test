@@ -3,6 +3,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import axios from "axios";
 
 const validationSchema = Yup.object({
   roleName: Yup.string()
@@ -18,10 +19,28 @@ const AddRole = () => {
       roleName: "",
     },
     validationSchema,
-    onSubmit: (values) => {
-      console.log("Role Name:", values.roleName);
-      alert("Role Added Successfully!");
-      // You can add API call or state updates here
+    onSubmit: async (values) => {
+      const body = {
+        name: values.roleName,
+        status: true,
+      };
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_URI}/api/v1/roles`,
+          body,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (response.status === 201) {
+          navigate("/roles", { state: { refresh: true } });
+        } else {
+          throw new Error("Failed to delete role");
+        }
+      } catch (err) {
+        console.error("Error deleting role:", err.message);
+      }
     },
   });
 

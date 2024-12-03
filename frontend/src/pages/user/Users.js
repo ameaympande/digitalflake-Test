@@ -16,6 +16,34 @@ const Users = () => {
   const popupRef = useRef(null);
   const location = useLocation();
 
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URI}/api/v1/users`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        setUsers(response.data.users);
+      }
+    } catch (err) {
+      console.error(err.message || "Failed to fetch users.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (location.state?.refresh) {
+      fetchUsers();
+    }
+  }, [location.state]);
+
   const togglePopup = () => {
     setPopupVisible(!isPopupVisible);
   };
@@ -44,19 +72,12 @@ const Users = () => {
         Header: "Status",
         accessor: "status",
         Cell: ({ value }) => (
-          <span
-            className={
-              value === "Active"
-                ? "text-green-500"
-                : value === "Inactive"
-                ? "text-red-500"
-                : ""
-            }
-          >
-            {value}
+          <span className={value ? "text-green-500" : "text-red-500"}>
+            {value ? "Active" : "Inactive"}
           </span>
         ),
       },
+
       {
         Header: "Action",
         Cell: ({ row }) => (
